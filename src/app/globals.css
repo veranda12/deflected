@@ -1,26 +1,275 @@
 @import "tailwindcss";
 
+/*
+ * DEFLECTED design tokens.
+ * Palette: navy + electric blue + one amber accent, taken from the client's
+ * existing DFLCTD web palette and brand deck (see DESIGN.md for reasons).
+ */
+@theme {
+  --color-ink: #0a1128;
+  --color-navy: #0b2545;
+  --color-navy-800: #12305a;
+  --color-navy-line: #22406b;
+  --color-blue: #0066ff;
+  --color-blue-strong: #0052d6;
+  --color-blue-soft: #e6efff;
+  --color-amber: #ffb703;
+  --color-paper: #ffffff;
+  --color-mist: #f2f5fa;
+  --color-cloud: #e4eaf3;
+  --color-line: #d7dfea;
+  --color-text: #0f172a;
+  --color-text-2: #475569;
+  --color-text-3: #5a6a80;
+  --color-on-dark: #ffffff;
+  --color-on-dark-2: #a9b8d0;
+  --color-success: #0f7b4d;
+  --color-success-soft: #e3f4ec;
+  --color-warning: #9a4b06;
+  --color-warning-soft: #fdf1e2;
+  --color-danger: #b42318;
+  --color-danger-soft: #fdecea;
+
+  --font-sans: var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-bebas), "Arial Narrow", sans-serif;
+
+  --radius-xs: 6px;
+  --radius-sm: 10px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-xl: 28px;
+
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --duration-fast: 150ms;
+  --duration-base: 240ms;
+  --duration-slow: 700ms;
+
+  --breakpoint-xs: 400px;
+}
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --gutter: clamp(16px, 4vw, 40px);
+  --section-y: clamp(72px, 10vw, 136px);
+  --header-h: 76px;
+  color-scheme: light;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  scroll-padding-top: calc(var(--header-h) + 16px);
+  -webkit-text-size-adjust: 100%;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--color-paper);
+  color: var(--color-text);
+  font-family: var(--font-sans);
+  font-feature-settings: "ss01";
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background: var(--color-blue);
+  color: #fff;
+}
+
+:focus-visible {
+  outline: 3px solid var(--color-blue);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+.on-dark :focus-visible,
+.on-dark:focus-visible {
+  outline-color: var(--color-amber);
+}
+
+@utility container-x {
+  width: 100%;
+  max-width: 1280px;
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+@utility section-y {
+  padding-block: var(--section-y);
+}
+
+/* Display type: Bebas Neue is caps-only, so tracking stays near zero and leading tight. */
+@utility display-xl {
+  font-family: var(--font-display);
+  font-size: clamp(3.1rem, 6.4vw, 6.6rem);
+  line-height: 0.88;
+  letter-spacing: 0.005em;
+  text-transform: uppercase;
+}
+@utility display-lg {
+  font-family: var(--font-display);
+  font-size: clamp(2.75rem, 6vw, 5.5rem);
+  line-height: 0.9;
+  letter-spacing: 0.005em;
+  text-transform: uppercase;
+}
+@utility display-md {
+  font-family: var(--font-display);
+  font-size: clamp(2.25rem, 4.2vw, 3.75rem);
+  line-height: 0.92;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+}
+@utility display-sm {
+  font-family: var(--font-display);
+  font-size: clamp(1.75rem, 2.6vw, 2.4rem);
+  line-height: 0.95;
+  letter-spacing: 0.015em;
+  text-transform: uppercase;
+}
+
+/* Identity motif: the angled cut taken from the top-left edge of the DFLCTD mark. */
+@utility cut-corner {
+  clip-path: polygon(var(--cut, 44px) 0, 100% 0, 100% 100%, 0 100%, 0 var(--cut, 44px));
+}
+@utility cut-corner-sm {
+  clip-path: polygon(var(--cut, 18px) 0, 100% 0, 100% 100%, 0 100%, 0 var(--cut, 18px));
+}
+
+/* ---------- Motion ---------- */
+
+/* Scroll reveal: only hides content when JS has marked the document ready. */
+.js [data-reveal] {
+  opacity: 0;
+  transform: translate3d(0, 28px, 0);
+  transition:
+    opacity 700ms var(--ease-out),
+    transform 900ms var(--ease-out);
+  transition-delay: calc(var(--reveal-i, 0) * 70ms);
+}
+.js [data-reveal="fade"] {
+  transform: none;
+}
+/* The clip goes on the children: Chrome's IntersectionObserver honours a target's own clip-path. */
+.js [data-reveal="clip"] {
+  opacity: 1;
+  transform: none;
+}
+.js [data-reveal="clip"] > * {
+  clip-path: inset(0 0 100% 0);
+  transition: clip-path 1100ms var(--ease-out);
+  transition-delay: calc(var(--reveal-i, 0) * 90ms);
+}
+.js [data-reveal].is-in {
+  opacity: 1;
+  transform: none;
+}
+.js [data-reveal="clip"].is-in > * {
+  clip-path: inset(0 0 0 0);
+}
+
+/* Hero entrance: each display line rises out of its own mask. */
+.hero-line {
+  display: block;
+  overflow: hidden;
+  padding-bottom: 0.04em;
+}
+.hero-line > span {
+  display: block;
+  animation: line-rise 1000ms var(--ease-out) both;
+  animation-delay: calc(120ms + var(--i, 0) * 90ms);
+}
+.hero-fade {
+  animation: fade-up 900ms var(--ease-out) both;
+  animation-delay: calc(450ms + var(--i, 0) * 80ms);
+}
+.hero-media {
+  animation: media-in 1400ms var(--ease-out) both;
+  animation-delay: 200ms;
+}
+.hero-media img {
+  animation: media-zoom 2200ms var(--ease-out) both;
+  animation-delay: 200ms;
+}
+
+@keyframes line-rise {
+  from {
+    transform: translate3d(0, 105%, 0);
+  }
+  to {
+    transform: none;
+  }
+}
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 18px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes media-in {
+  from {
+    clip-path: polygon(0 100%, 100% 100%, 100% 100%, 0 100%);
+  }
+  to {
+    clip-path: polygon(var(--cut, 44px) 0, 100% 0, 100% 100%, 0 100%, 0 var(--cut, 44px));
+  }
+}
+@keyframes media-zoom {
+  from {
+    transform: scale(1.12);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+@keyframes panel-in {
+  from {
+    opacity: 0;
+    transform: translate3d(0, -6px, 0) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Image hover used on product and project cards. */
+.zoom-media img {
+  transition: transform 900ms var(--ease-out);
+}
+.group:hover .zoom-media img,
+.group:focus-visible .zoom-media img {
+  transform: scale(1.045);
+}
+
+/* FAQ accordion: animates height without measuring in JS. */
+.accordion-panel {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 360ms var(--ease-out);
+}
+.accordion-panel[data-open="true"] {
+  grid-template-rows: 1fr;
+}
+.accordion-panel > div {
+  overflow: hidden;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 1ms !important;
+    animation-delay: 0ms !important;
+    transition-duration: 1ms !important;
+    transition-delay: 0ms !important;
+    scroll-behavior: auto !important;
+  }
+  .js [data-reveal],
+  .js [data-reveal] > * {
+    opacity: 1;
+    transform: none;
+    clip-path: none;
+  }
 }

@@ -1,0 +1,12 @@
+node_modules
+.next
+.vercel
+.env*
+.dev
+.data
+.wrangler
+.open-next
+.git
+.agents
+.claude
+graphify-out

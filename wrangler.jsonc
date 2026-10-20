@@ -1,0 +1,39 @@
+{
+	// Cloudflare Workers deployment via OpenNext. See docs/DEPLOYMENT.md before the first deploy.
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"main": ".open-next/worker.js",
+	"name": "deflected-website",
+	"compatibility_date": "2026-10-01",
+	"compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+	"assets": {
+		"directory": ".open-next/assets",
+		"binding": "ASSETS"
+	},
+	"services": [
+		{
+			"binding": "WORKER_SELF_REFERENCE",
+			"service": "deflected-website"
+		}
+	],
+	"r2_buckets": [
+		// Next.js incremental cache (unstable_cache tags) shared across isolates.
+		{ "binding": "NEXT_INC_CACHE_R2_BUCKET", "bucket_name": "deflected-opennext-cache" },
+		// Uploaded product/portfolio images. Create with: npx wrangler r2 bucket create deflected-media
+		{ "binding": "MEDIA_BUCKET", "bucket_name": "deflected-media" }
+	],
+	"images": {
+		"binding": "IMAGES"
+	},
+	// Optional, recommended with Neon/Supabase: connection pooling at the edge.
+	// "hyperdrive": [{ "binding": "HYPERDRIVE", "id": "<HYPERDRIVE_ID>" }],
+	"vars": {
+		"SITE_URL": "https://deflected.id",
+		"STORAGE_DRIVER": "r2",
+		"DB_PER_REQUEST": "1",
+		"DB_POOL_MAX": "1",
+		"GOOGLE_SHEETS_TAB": "Inquiry"
+	},
+	"observability": { "enabled": true }
+	// Secrets (never commit): wrangler secret put DATABASE_URL | AUTH_SECRET | CRON_SECRET
+	// | GOOGLE_SERVICE_ACCOUNT_EMAIL | GOOGLE_PRIVATE_KEY | GOOGLE_SHEETS_ID
+}
