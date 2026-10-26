@@ -6,7 +6,7 @@ import { Gallery } from "@/components/site/gallery";
 import { Breadcrumbs } from "@/components/site/page-hero";
 import { buttonClass } from "@/components/ui/button";
 import { findRedirect, getCatalog, getPortfolio } from "@/lib/queries";
-import { buildMetadata, JsonLd, productJsonLd } from "@/lib/seo";
+import { buildMetadata, JsonLd, productServiceJsonLd } from "@/lib/seo";
 import { getSettings } from "@/lib/settings";
 import { paragraphs, waLink } from "@/lib/utils";
 
@@ -160,7 +160,7 @@ export default async function ProductPage({ params }: Props) {
           </div>
         </section>
       )}
-      <JsonLd data={productJsonLd(product, company.name)} />
+      <JsonLd data={productServiceJsonLd(product, company.name)} />
     </>
   );
 }

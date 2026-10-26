@@ -83,16 +83,20 @@ export function breadcrumbJsonLd(items: { name: string; path: string }[]) {
   };
 }
 
-export function productJsonLd(p: ProductView, companyName: string) {
+/**
+ * Catalog items are made to order and priced per quotation, so there is no public price to put in an
+ * Offer. Google's Product snippets require offers, review or aggregateRating, none of which exist
+ * honestly here, so the item is described as the production service it is.
+ */
+export function productServiceJsonLd(p: ProductView, companyName: string) {
   return {
     "@context": "https://schema.org",
-    "@type": "Product",
+    "@type": "Service",
     name: p.name,
     description: p.summary || p.description,
     image: p.images.map((i) => absoluteUrl(mediaUrl(i.key))),
-    category: p.category?.name,
-    brand: { "@type": "Brand", name: companyName },
-    ...(p.materials.length ? { material: p.materials.join(", ") } : {}),
+    ...(p.category ? { category: p.category.name } : {}),
+    provider: { "@type": "Organization", "@id": `${env.siteUrl}/#organization`, name: companyName },
     url: absoluteUrl(`/produk/${p.slug}`),
   };
 }
@@ -104,7 +108,7 @@ export function projectJsonLd(p: ProjectView, companyName: string) {
     name: p.title,
     description: p.summary,
     image: p.images.map((i) => absoluteUrl(mediaUrl(i.key))),
-    creator: { "@type": "Organization", name: companyName },
+    creator: { "@type": "Organization", "@id": `${env.siteUrl}/#organization`, name: companyName },
     url: absoluteUrl(`/portofolio/${p.slug}`),
   };
 }
